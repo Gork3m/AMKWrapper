@@ -7,20 +7,31 @@ using System.Net;
 using System.Web;
 
 using AMKWrapper.Types;
+using AMKWrapper.Debugging;
+using AMKWrapper.Http.Endpoints;
 
 namespace AMKWrapper.Http
 {
     public static class Requests {
         /// <summary>
+        /// Endpoints to interact with the raw API, you usually won't need to use any of these in your code.
+        /// </summary>
+        public static class API {
+            public static DiscordRequest SendMessage(string channelid, string raw_content, string token, TokenType tokenType) {
+                return RawRequest(DiscordEndpoints.Message(channelid), token, "POST", "application/json", raw_content, tokenType);
+            }
+        }
+        /// <summary>
         /// Failsafe stuff, allows you to kill http requests instantly
         /// </summary>
         public static class Security {
             public static void LockHttpRequests() {
+                
                 Debug.Log("Locked all http requestst!", ConsoleColor.Yellow);
                 isLocked = true;
             }
             public static void UnlockHttpRequests() {
-                Debug.Log("Unlocked all http requests!", ConsoleColor.Green);
+                Debug.Log("Unlocked all http requests!", ConsoleColor.Yellow);
                 isLocked = false;
             }
         }
@@ -76,8 +87,6 @@ namespace AMKWrapper.Http
                     }
                 }
 
-
-
                 var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
                 using (var streamReader = new StreamReader(httpResponse.GetResponseStream())) {
                     var result = streamReader.ReadToEnd();
@@ -85,11 +94,11 @@ namespace AMKWrapper.Http
                 }
             }
             catch (Exception ex) {
-                Console.WriteLine("ERROR::" + ex.Message);
+                Debug.Log("Http Error: " + ex.Message, ConsoleColor.Red);
                 return new DiscordRequest() { ResponseBody = ex.Message, Succeeded = false };
             }
         }
-        public static string EncodeNonAsciiCharacters(string value) {
+        private static string EncodeNonAsciiCharacters(string value) {
             StringBuilder sb = new StringBuilder();
             foreach (char c in value) {
                 if (c > 127) {
