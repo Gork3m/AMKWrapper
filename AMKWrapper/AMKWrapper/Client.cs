@@ -25,8 +25,8 @@ namespace AMKWrapper {
         /// <param name="message"></param>
         /// <param name="channelid"></param>
         /// <returns></returns>
-        public DiscordMessage SendMessage(string message, string channelid) {
-            DiscordRequest discordRequest = Requests.API.SendMessage(channelid, JsonConvert.SerializeObject(new DiscordMessage() { content = message }), token, clientType);
+        public DiscordMessage SendMessage(string message, string channelid, Button.ButtonContainer[] components = null) {
+            DiscordRequest discordRequest = Requests.API.SendMessage(channelid, JsonConvert.SerializeObject(new SocketTypes.DiscordMessage_Send() { content = message, components = components }), token, clientType);
             if (discordRequest.Succeeded) {
                 return JsonConvert.DeserializeObject<DiscordMessage>(discordRequest.ResponseBody);
             }
@@ -40,8 +40,8 @@ namespace AMKWrapper {
         /// <param name="embed"></param>
         /// <param name="channelid"></param>
         /// <returns></returns>
-        public DiscordMessage SendMessage(Embed.DiscordEmbed embed, string channelid) {
-            DiscordRequest discordRequest = Requests.API.SendMessage(channelid, "{ \"embed\": " + JsonConvert.SerializeObject(embed) + " }", token, clientType);
+        public DiscordMessage SendMessage(Embed.DiscordEmbed embed, string channelid, Button.ButtonContainer[] components = null) {
+            DiscordRequest discordRequest = Requests.API.SendMessage(channelid, JsonConvert.SerializeObject(new SocketTypes.DiscordMessage_Send() { embed = embed, components = components }), token, clientType);
             if (discordRequest.Succeeded) {
                 return JsonConvert.DeserializeObject<DiscordMessage>(discordRequest.ResponseBody);
             }

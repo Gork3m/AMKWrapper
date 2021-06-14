@@ -20,6 +20,7 @@ using AMKWrapper.EventArgs;
 namespace AMKWrapper.Http {
     public partial class Gateway {
         public static Dictionary<string, Action<MessageCreateEventArgs>> messageCreatedCallbacks = new Dictionary<string, Action<MessageCreateEventArgs>>();
+        public static Dictionary<string, Action<InteractionCreateEventArgs>> interactionCreatedCallbacks = new Dictionary<string, Action<InteractionCreateEventArgs>>();
         public Client _client { get; set; }
         public Dictionary<string, Action<string, Client>> eventPool = new Dictionary<string, Action<string, Client>>() {
             ["MESSAGE_CREATE"] = delegate(string raw, Client client) {
@@ -36,9 +37,29 @@ namespace AMKWrapper.Http {
                         try {
                             messageCreatedCallbacks.ElementAt(index).Value(args);
                             }
-                        catch(Exception ex) { Debug.Log("Error occured while running event hook @ ["+ messageCreatedCallbacks.ElementAt(index).Key +"] " + ex.Message, ConsoleColor.DarkRed); }
+                        catch(Exception ex) { Debug.Log("Error occured while running MESSAGE_CREATE hook @ ["+ messageCreatedCallbacks.ElementAt(index).Key +"] " + ex.Message, ConsoleColor.DarkRed); }
                         });
                     
+                }
+            },
+
+            ["INTERACTION_CREATE"] = delegate (string raw, Client client) {
+                JObject data = JObject.Parse(raw);
+
+                InteractionCreateEventArgs args = new InteractionCreateEventArgs() {
+                    interaction = JsonConvert.DeserializeObject<Interaction>(data["d"].ToString()),
+                    client = client
+                };
+                for (int i = 0; i < interactionCreatedCallbacks.Count; i++) {
+
+                    int index = i;
+                    Task.Run(() => {
+                        try {
+                            interactionCreatedCallbacks.ElementAt(index).Value(args);
+                        }
+                        catch (Exception ex) { Debug.Log("Error occured while running INTERACTION_CREATE hook @ [" + interactionCreatedCallbacks.ElementAt(index).Key + "] " + ex.Message, ConsoleColor.DarkRed); }
+                    });
+
                 }
             }
 
@@ -135,7 +156,7 @@ namespace AMKWrapper.Http {
 
                                         case 10: // Op 10 Hello
                                             Debug.Log("[3/6] Received Hello");
-                                            await SendString(socket, "{\"op\": 2, \"d\": { \"token\": \"" + token + "\", \"intents\": 513, \"presence\": { \"status\": \"online\", \"afk\": false  }, \"properties\": { \"$os\": \"linux\", \"$browser\": \"AMKWrapper\", \"$device\": \"AMKWrapper\" } } }");
+                                            await SendString(socket, "{\"op\": 2, \"d\": { \"token\": \"" + token + "\", \"intents\": 4611, \"presence\": { \"status\": \"online\", \"afk\": false  }, \"properties\": { \"$os\": \"linux\", \"$browser\": \"AMKWrapper\", \"$device\": \"AMKWrapper\" } } }");
                                             Debug.Log("[4/6] Sent identify packet");
                                             break;
 

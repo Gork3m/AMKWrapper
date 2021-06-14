@@ -18,6 +18,11 @@ namespace AMKWrapper.Events {
             Gateway.messageCreatedCallbacks.Add(eventHook.HookId, callback);
             return eventHook;
         }
+        public static EventHook OnInteraction(Action<InteractionCreateEventArgs> callback) {
+            EventHook eventHook = new EventHook();
+            Gateway.interactionCreatedCallbacks.Add(eventHook.HookId, callback);
+            return eventHook;
+        }
         public partial class EventHook {
             private string GetGuid() {
                 return GetRandomHex(8) + "-" + GetRandomHex(4) + "-" + GetRandomHex(6);

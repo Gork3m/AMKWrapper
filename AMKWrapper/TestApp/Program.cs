@@ -23,35 +23,30 @@ namespace TestApp
             };
 
             client.Initialize();
-            Embed.DiscordEmbed embed = new Embed.DiscordEmbed() {
-                color = Embed.EmbedColor.GreenAsFuck,
-                description = "Type monkey if you're a monkey, and type clown if you're a clown",
-                title = "Monkeymeter"
-            };
 
-            DiscordEvents.EventHook eventHook = DiscordEvents.OnNewMessage(delegate (MessageCreateEventArgs args) {
-                if (args.message.content != "monkey") return;
-                client.SendMessage("<@" + args.message.author.id + "> is a monkey :monkey:", args.message.channel_id);
-                
+            DiscordEvents.EventHook main = DiscordEvents.OnNewMessage(delegate (MessageCreateEventArgs args) {
+                if (args.message.author.bot) return;
+                bool isObfuscationRequest = false;
+                isObfuscationRequest = (args.message.attachments.Length == 1 && (args.message.attachments[0].url.ToLower().EndsWith(".lua") | args.message.attachments[0].url.ToLower().EndsWith(".txt")));
+
+                if (isObfuscationRequest) {
+
+                    var msg = args.Reply("_ _", null);
+
+                }
             });
 
-            DiscordEvents.EventHook eventHook2 = DiscordEvents.OnNewMessage(delegate (MessageCreateEventArgs args) {
-
-                if (args.message.content != "clown") return;
-                client.SendMessage("<@" + args.message.author.id + "> is a clown :clown:", args.message.channel_id);
-
-                args.Reply("<@" + args.message.author.id + "> is a clown :clown:");
-            });
-
-            var msg = client.SendMessage(embed, "853698668049072138");
-            
 
 
-            Console.ReadLine();
-            eventHook2.DeleteHook();
-            Console.ReadLine();
-            client.Disconnect();
-            Console.ReadLine();
+            Console.ReadKey();
+            while (true) {
+                Console.WriteLine("Type yes to shut down, anything else to cancel\n\n");
+                string cc = Console.ReadLine();
+                if (cc == "yes") {
+                    break;
+                }
+
+            }
         }
     }
 }

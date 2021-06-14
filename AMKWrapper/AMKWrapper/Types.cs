@@ -4,9 +4,122 @@ using System.Text;
 
 namespace AMKWrapper.Types
 {
-    public class PacketTypes {
+    public class Attachment {
+        public string url { get; set; }
+        public int size { get; set; }
+        public string filename { get; set; }
+    }
+    public class InteractionData {
+        public string custom_id { get; set; }
+    }
+    public class DiscordMember {
+        public DiscordUser user { get; set; }
+    }
+    public class Interaction {
+
+        public DiscordUser user { get; set; }
+        public DiscordMember member { get; set; }
+        public InteractionData data { get; set; }
+        public DiscordMessage message { get; set; }
+        public string id { get; set; }
+        public string token { get; set; }
+    }
+    public class DiscordGuild {
+        public string id { get; set; }
+        public string name { get; set; }
+        public string icon { get; set; }
+        public bool owner { get; set; }
+        public string permissions { get; set; }
+        public string[] features { get; set; }
 
     }
+    public partial class Button {
+
+        
+        public partial class ButtonContainer {
+            public ButtonContainer(Button[] buttons) {
+                if (buttons.Length > 5) {
+                    throw new Exception("Too many buttons (5x5 max.)");
+                }
+                components = buttons;
+                type = 1;
+            }
+            public Button[] components { get; set; }
+            public int type { get; set; }
+        }
+        
+        public Button(string text, ButtonStyle buttonStyle, string data, bool isDisabled = false) {
+            if (buttonStyle == ButtonStyle.Link) {
+                url = data;
+            }
+            else {
+                custom_id = data;
+            }
+            label = text;
+            type = 2;
+            style = (int)buttonStyle;
+            disabled = isDisabled;
+        }
+
+        public int type { get; set; }
+        public string label { get; set; }
+        public int style { get; set; }
+        public bool disabled { get; set; }
+        public string custom_id { get; set; }
+        public string url { get; set; }
+        public enum ButtonStyle {
+            Blue = 1,
+            Grey = 2,
+            Green = 3,
+            Red = 4,
+            Link = 5
+        }
+    }
+    
+    public class SocketTypes {
+        public enum InteractionReplyType {
+            /// <summary>
+            /// Edit the message
+            /// </summary>
+            Edit = 7,
+            /// <summary>
+            /// Do absolutely nothing, but don't fail either.
+            /// </summary>
+            Pong = 1
+        }
+        public partial class InteractionReply {
+            public class InteractionData_Send {
+                public string content { get; set; }
+                public Embed.DiscordEmbed embed { get; set; }
+                
+                public Button.ButtonContainer[] components { get; set; }
+            }
+            public InteractionReply(InteractionReplyType replyType, Button.ButtonContainer[] replyComponents = null, string message = null, Embed.DiscordEmbed embed = null) {
+                InteractionData_Send dat = new InteractionData_Send() {
+                    content = message,
+                    embed = embed,
+                    components = replyComponents
+                };
+                type = (int)replyType;
+                data = dat;
+
+            }
+            public InteractionData_Send data { get; set; }
+            public int type { get; set; }
+
+        }
+        public class DiscordMessage_Send {
+            public string guild_id { get; set; }
+            public string content { get; set; }
+            public Embed.DiscordEmbed embed { get; set; }
+            public Button.ButtonContainer[] components { get; set; }
+            public MessageReference message_reference { get; set; }
+            public DiscordUser author { get; set; }
+            public string id { get; set; }
+            public string channel_id { get; set; }
+        }
+    }
+
     public class Embed {
 
         public class DiscordEmbed {
@@ -77,10 +190,13 @@ namespace AMKWrapper.Types
     public class DiscordMessage {
         public string guild_id { get; set; }
         public string content { get; set; }
+        public Embed.DiscordEmbed embed { get; set; }
         public MessageReference message_reference { get;set; }
         public DiscordUser author { get; set; }
         public string id { get; set; }
         public string channel_id { get; set; }
+
+        public Attachment[] attachments { get; set; }
     }
     public class DiscordRequest {
         public string ResponseBody { get; set; }

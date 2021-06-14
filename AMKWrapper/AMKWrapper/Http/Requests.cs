@@ -17,6 +17,10 @@ namespace AMKWrapper.Http
         /// Endpoints to interact with the raw API, you usually won't need to use any of these in your code.
         /// </summary>
         public static class API {
+
+            public static DiscordRequest AckInteraction(string raw_content, string interaction_token, string interaction_id, string token, TokenType tokenType) {
+                return RawRequest(DiscordEndpoints.Interaction(interaction_id, interaction_token), token, "POST", "application/json", raw_content, tokenType);
+            }
             public static DiscordRequest SendMessage(string channelid, string raw_content, string token, TokenType tokenType) {
                 return RawRequest(DiscordEndpoints.Message(channelid), token, "POST", "application/json", raw_content, tokenType);
             }
