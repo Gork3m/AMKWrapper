@@ -4,6 +4,64 @@ using System.Text;
 
 namespace AMKWrapper.Types
 {
+    public class PacketTypes {
+
+    }
+    public class Embed {
+
+        public class DiscordEmbed {
+            public string title { get; set; }
+            public string description { get; set; }
+            public string url { get; set; }
+            public string timestamp { get; set; }
+            public EmbedColor color { get; set; }
+            public EmbedFooter footer { get; set; }
+            public EmbedThumbnail thumbnail { get; set; }
+            public EmbedImage image { get; set; }
+            public EmbedAuthor author { get; set; }
+            public EmbedField[] fields { get; set; }
+
+
+        }
+        public static string GetAvatarUrl(DiscordUser user) {
+            return "https://cdn.discordapp.com/avatars/" + user.id + "/" + user.avatar + ".png?size=512";
+        }
+        public class EmbedThumbnail {
+            public string url { get; set; }
+        }
+        public class EmbedImage {
+            public string url { get; set; }
+        }
+        public class EmbedAuthor {
+            public string name { get; set; }
+            public string icon_url { get; set; }
+            public string url { get; set; }
+
+        }
+        public class EmbedField {
+            public string name { get; set; }
+            public string value { get; set; }
+            public bool inline { get; set; }
+        }
+
+        public class EmbedFooter {
+            public string icon_url { get; set; }
+            public string text { get; set; }
+
+        }
+        public enum EmbedColor {
+            CuteGreen = 3586931,
+            CuteCyan = 0x36BBAF,
+
+            RedAsFuck = 0xff0000,
+            WhiteAsFuck = 0xffffff,
+            BlackAsFuck = 0x000000,
+            BlueAsFuck = 0x0000ff,
+            GreenAsFuck = 0x00ff00,
+            
+            Purple = 0xaa33aa
+        }
+    }
     public class DiscordUser {
         public string avatar { get; set; }
         public bool bot { get; set; }

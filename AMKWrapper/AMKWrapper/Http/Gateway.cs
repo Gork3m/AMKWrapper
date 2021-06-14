@@ -8,15 +8,38 @@ using System.Net.WebSockets;
 using System.Threading.Tasks;
 using System.Threading;
 using System.IO;
-
+using System.Linq;
+using Newtonsoft.Json.Linq;
 
 using AMKWrapper.Http;
 using AMKWrapper.Http.Endpoints;
 using AMKWrapper.Debugging;
 using AMKWrapper.Types;
+using AMKWrapper.EventArgs;
 
 namespace AMKWrapper.Http {
     public partial class Gateway {
+        public static Dictionary<string, Action<MessageCreateEventArgs>> messageCreatedCallbacks = new Dictionary<string, Action<MessageCreateEventArgs>>();
+        public Dictionary<string, Action<string>> eventPool = new Dictionary<string, Action<string>>() {
+            ["MESSAGE_CREATE"] = delegate(string raw) {
+                JObject data = JObject.Parse(raw);
+                MessageCreateEventArgs args = new MessageCreateEventArgs() {
+                    message = JsonConvert.DeserializeObject<DiscordMessage>(data["d"].ToString())
+                };
+                for (int i = 0; i < messageCreatedCallbacks.Count; i++) {
+
+                    int index = i;
+                    Task.Run(() => {
+                        try {
+                            messageCreatedCallbacks.ElementAt(index).Value(args);
+                            }
+                        catch(Exception ex) { Debug.Log("Error occured while running event hook @ ["+ messageCreatedCallbacks.ElementAt(index).Key +"] " + ex.Message, ConsoleColor.DarkRed); }
+                        });
+                    
+                }
+            }
+
+        };
         public bool isActiveSocket { get; set; }
         public bool connected { get; set; }
         public Gateway() {
@@ -104,8 +127,8 @@ namespace AMKWrapper.Http {
                                     string packet = reader.ReadToEnd();
 
                                     #region Heartbeat task
-
-                                    switch(JsonConvert.DeserializeObject<Opcode>(packet).op) {
+                                    Opcode opcode = JsonConvert.DeserializeObject<Opcode>(packet);
+                                    switch (opcode.op) {
 
                                         case 10: // Op 10 Hello
                                             Debug.Log("[3/6] Received Hello");
@@ -140,6 +163,16 @@ namespace AMKWrapper.Http {
                                             if (isActiveSocket) {
                                                 Debug.Log("[1/6] Reconnecting..", ConsoleColor.DarkYellow);
                                                 Connect();
+                                            }
+                                            break;
+                                        case 0:
+                                            if (eventPool.ContainsKey(opcode.t)) {
+                                                try {
+                                                    Task.Run(() => eventPool[opcode.t](packet)); // asyncness :sunglasses:
+                                                }
+                                                catch(Exception ex) {
+                                                    Debug.Log("Error while callback: " + opcode.t + ": " + ex.Message, ConsoleColor.DarkRed);
+                                                }
                                             }
                                             break;
                                     }

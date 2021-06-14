@@ -20,6 +20,10 @@ namespace AMKWrapper.Http
             public static DiscordRequest SendMessage(string channelid, string raw_content, string token, TokenType tokenType) {
                 return RawRequest(DiscordEndpoints.Message(channelid), token, "POST", "application/json", raw_content, tokenType);
             }
+
+            public static DiscordRequest EditMessage(string channelid, string messageid, string raw_content, string token, TokenType tokenType) {
+                return RawRequest(DiscordEndpoints.Message(channelid, messageid), token, "PATCH", "application/json", raw_content, tokenType);
+            }
         }
         /// <summary>
         /// Failsafe stuff, allows you to kill http requests instantly
@@ -58,7 +62,7 @@ namespace AMKWrapper.Http
             jsonBody = EncodeNonAsciiCharacters(jsonBody);
             if (isLocked) { Debug.Log("Http requests are locked.", ConsoleColor.Red); return new DiscordRequest() { ResponseBody = "", Succeeded = false }; }
             try {
-               
+                Debug.Log("[" + method + "] -> " + url, ConsoleColor.Gray);
                 var httpWebRequest = (HttpWebRequest)WebRequest.Create(url);
                 httpWebRequest.ContentType = contentType;
                 httpWebRequest.Method = method;
