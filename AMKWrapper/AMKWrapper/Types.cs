@@ -69,8 +69,15 @@ namespace AMKWrapper.Types
         public string id { get; set; }
         public string username { get; set; }
     }
+    public class MessageReference {
+        public string message_id { get; set; }
+        public string channel_id { get; set; }
+        public string guild_id { get; set; }
+    }
     public class DiscordMessage {
+        public string guild_id { get; set; }
         public string content { get; set; }
+        public MessageReference message_reference { get;set; }
         public DiscordUser author { get; set; }
         public string id { get; set; }
         public string channel_id { get; set; }
@@ -85,5 +92,5 @@ namespace AMKWrapper.Types
     }
 
 
-
+    
 }

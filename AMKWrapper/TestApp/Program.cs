@@ -39,6 +39,8 @@ namespace TestApp
 
                 if (args.message.content != "clown") return;
                 client.SendMessage("<@" + args.message.author.id + "> is a clown :clown:", args.message.channel_id);
+
+                args.Reply("<@" + args.message.author.id + "> is a clown :clown:");
             });
 
             var msg = client.SendMessage(embed, "853698668049072138");

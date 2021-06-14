@@ -87,14 +87,20 @@ namespace AMKWrapper {
         public string token { get; set; }
         public static Gateway gateway { get; set; }
         public Requests.TokenType clientType { get; set; }
+        public Client _self { get; set; }
         public void Disconnect() {
             gateway.Disconnect();
         }
         public void Initialize() {
+            _self = new Client() {
+                token = token,
+                clientType = clientType
+            };
             gateway = new Gateway() {
                 token = token,
                 TokenType = clientType,
-                socket = new System.Net.WebSockets.ClientWebSocket()
+                socket = new System.Net.WebSockets.ClientWebSocket(),
+                _client = _self
                 
             };
             Debug.Log("[1/6] Connecting to gateway", ConsoleColor.DarkYellow);

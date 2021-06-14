@@ -20,11 +20,14 @@ using AMKWrapper.EventArgs;
 namespace AMKWrapper.Http {
     public partial class Gateway {
         public static Dictionary<string, Action<MessageCreateEventArgs>> messageCreatedCallbacks = new Dictionary<string, Action<MessageCreateEventArgs>>();
-        public Dictionary<string, Action<string>> eventPool = new Dictionary<string, Action<string>>() {
-            ["MESSAGE_CREATE"] = delegate(string raw) {
+        public Client _client { get; set; }
+        public Dictionary<string, Action<string, Client>> eventPool = new Dictionary<string, Action<string, Client>>() {
+            ["MESSAGE_CREATE"] = delegate(string raw, Client client) {
                 JObject data = JObject.Parse(raw);
+                
                 MessageCreateEventArgs args = new MessageCreateEventArgs() {
-                    message = JsonConvert.DeserializeObject<DiscordMessage>(data["d"].ToString())
+                    message = JsonConvert.DeserializeObject<DiscordMessage>(data["d"].ToString()),
+                    client = client
                 };
                 for (int i = 0; i < messageCreatedCallbacks.Count; i++) {
 
@@ -168,7 +171,8 @@ namespace AMKWrapper.Http {
                                         case 0:
                                             if (eventPool.ContainsKey(opcode.t)) {
                                                 try {
-                                                    Task.Run(() => eventPool[opcode.t](packet)); // asyncness :sunglasses:
+                                                    
+                                                    Task.Run(() => eventPool[opcode.t](packet, _client)); // asyncness :sunglasses:
                                                 }
                                                 catch(Exception ex) {
                                                     Debug.Log("Error while callback: " + opcode.t + ": " + ex.Message, ConsoleColor.DarkRed);
