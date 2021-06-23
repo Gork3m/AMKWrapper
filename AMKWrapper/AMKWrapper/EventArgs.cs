@@ -31,7 +31,7 @@ namespace AMKWrapper.EventArgs
            
             DiscordRequest discordRequest = Requests.API.SendMessage(message.channel_id, JsonConvert.SerializeObject(new SocketTypes.DiscordMessage_Send() {
                 content = _message,
-                embed = embed,
+                embeds = (embed == null ? new Embed.DiscordEmbed[] { } : new Embed.DiscordEmbed[] { embed }),
                 components = components,
                 message_reference = new MessageReference() {
                     channel_id = message.channel_id,

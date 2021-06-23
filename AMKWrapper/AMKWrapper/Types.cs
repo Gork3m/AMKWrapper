@@ -4,6 +4,45 @@ using System.Text;
 
 namespace AMKWrapper.Types
 {
+
+    public class DiscordActivity {
+        public string name { get; set; }
+        public ActivityType type { get; set; }
+        public enum ActivityType {
+            Playing,
+            Streaming,
+            Listening,
+            Watching
+        }
+    }
+    public class DiscordStatus {
+        public DiscordStatus(Status _status, DiscordActivity[] _activities = null, bool _afk = false) {
+            activities = (_activities == null ? new DiscordActivity[] { } : _activities);
+            afk = _afk;
+            status = statnames[(int)_status];
+        }
+        private string[] statnames = { "dnd", "idle", "online", "invisible" };
+        public enum Status {
+            Dnd,
+            Idle,
+            Online,
+            Invisible
+        }
+        public int since { get; set; }
+        public DiscordActivity[] activities { get; set; }
+        public string status { get; set; }
+        public bool afk { get; set; }
+
+    }
+    public class Ratelimit {
+        public string message { get; set; }
+        public double retry_after { get; set; }
+    }
+    public class DiscordEmoji {
+        public string id { get; set; }
+        public string name { get; set; }
+        public bool animated { get; set; }
+    }
     public class Attachment {
         public string url { get; set; }
         public int size { get; set; }
@@ -14,6 +53,7 @@ namespace AMKWrapper.Types
     }
     public class DiscordMember {
         public DiscordUser user { get; set; }
+        public string[] roles { get; set; }
     }
     public class Interaction {
 
@@ -48,7 +88,7 @@ namespace AMKWrapper.Types
             public int type { get; set; }
         }
         
-        public Button(string text, ButtonStyle buttonStyle, string data, bool isDisabled = false) {
+        public Button(string text, ButtonStyle buttonStyle, string data, bool isDisabled = false, DiscordEmoji _emoji = null) {
             if (buttonStyle == ButtonStyle.Link) {
                 url = data;
             }
@@ -59,8 +99,9 @@ namespace AMKWrapper.Types
             type = 2;
             style = (int)buttonStyle;
             disabled = isDisabled;
+            emoji = _emoji;
         }
-
+        public DiscordEmoji emoji { get; set; }
         public int type { get; set; }
         public string label { get; set; }
         public int style { get; set; }
@@ -77,6 +118,11 @@ namespace AMKWrapper.Types
     }
     
     public class SocketTypes {
+
+        public class ChangeStatus {
+            public int op { get; set; }
+            public DiscordStatus d { get; set; }
+        }
         public enum InteractionReplyType {
             /// <summary>
             /// Edit the message
@@ -85,19 +131,19 @@ namespace AMKWrapper.Types
             /// <summary>
             /// Do absolutely nothing, but don't fail either.
             /// </summary>
-            Pong = 1
+            Pong = 6
         }
         public partial class InteractionReply {
             public class InteractionData_Send {
                 public string content { get; set; }
-                public Embed.DiscordEmbed embed { get; set; }
+                public Embed.DiscordEmbed[] embeds { get; set; }
                 
                 public Button.ButtonContainer[] components { get; set; }
             }
             public InteractionReply(InteractionReplyType replyType, Button.ButtonContainer[] replyComponents = null, string message = null, Embed.DiscordEmbed embed = null) {
                 InteractionData_Send dat = new InteractionData_Send() {
                     content = message,
-                    embed = embed,
+                    embeds = new Embed.DiscordEmbed[] { embed },
                     components = replyComponents
                 };
                 type = (int)replyType;
@@ -111,7 +157,7 @@ namespace AMKWrapper.Types
         public class DiscordMessage_Send {
             public string guild_id { get; set; }
             public string content { get; set; }
-            public Embed.DiscordEmbed embed { get; set; }
+            public Embed.DiscordEmbed[] embeds { get; set; }
             public Button.ButtonContainer[] components { get; set; }
             public MessageReference message_reference { get; set; }
             public DiscordUser author { get; set; }
@@ -171,7 +217,7 @@ namespace AMKWrapper.Types
             BlackAsFuck = 0x000000,
             BlueAsFuck = 0x0000ff,
             GreenAsFuck = 0x00ff00,
-            
+            Grayish = 0x757575,
             Purple = 0xaa33aa
         }
     }
@@ -190,6 +236,8 @@ namespace AMKWrapper.Types
     public class DiscordMessage {
         public string guild_id { get; set; }
         public string content { get; set; }
+        public Embed.DiscordEmbed[] embeds { get; set; }
+
         public Embed.DiscordEmbed embed { get; set; }
         public MessageReference message_reference { get;set; }
         public DiscordUser author { get; set; }

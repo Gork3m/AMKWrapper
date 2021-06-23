@@ -17,7 +17,26 @@ namespace AMKWrapper {
     /// </summary>
     public partial class Client {
 
-        
+
+        public DiscordMember GetMemberFromGuild(string guild_id, string user_id) {
+            DiscordRequest discordRequest = Requests.API.GetMember(guild_id, user_id, token, clientType);
+            if (discordRequest.Succeeded) {
+                return JsonConvert.DeserializeObject<DiscordMember>(discordRequest.ResponseBody);
+            }
+            else {
+                throw new Exception(discordRequest.ResponseBody);
+            }
+        }
+        /// <summary>
+        /// Updates client presence (online, dnd, afk, playing, listening to etc.)
+        /// </summary>
+        /// <param name="status"></param>
+        /// <returns></returns>
+        public void UpdateStatus(Types.DiscordStatus status) {
+            this.status = status;
+            gateway._cliStatus = this.status;
+            gateway.SendString(gateway.socket, JsonConvert.SerializeObject(new SocketTypes.ChangeStatus() { d = status, op = 3 })).Wait();
+        }
 
         /// <summary>
         /// Sends a message to the specified channel
@@ -41,7 +60,19 @@ namespace AMKWrapper {
         /// <param name="channelid"></param>
         /// <returns></returns>
         public DiscordMessage SendMessage(Embed.DiscordEmbed embed, string channelid, Button.ButtonContainer[] components = null) {
-            DiscordRequest discordRequest = Requests.API.SendMessage(channelid, JsonConvert.SerializeObject(new SocketTypes.DiscordMessage_Send() { embed = embed, components = components }), token, clientType);
+            DiscordRequest discordRequest = Requests.API.SendMessage(channelid, JsonConvert.SerializeObject(new SocketTypes.DiscordMessage_Send() { embeds = new Embed.DiscordEmbed[] { embed }, components = components }), token, clientType);
+            if (discordRequest.Succeeded) {
+                return JsonConvert.DeserializeObject<DiscordMessage>(discordRequest.ResponseBody);
+            }
+            else {
+                throw new Exception(discordRequest.ResponseBody);
+            }
+        }
+
+        public DiscordMessage UploadFiles(string[] files, string channelid, string filename = "default") {
+            
+
+            DiscordRequest discordRequest = Requests.RawUpload(AMKWrapper.Http.Endpoints.DiscordEndpoints.Message(channelid), token, files, clientType, filename);
             if (discordRequest.Succeeded) {
                 return JsonConvert.DeserializeObject<DiscordMessage>(discordRequest.ResponseBody);
             }
@@ -72,8 +103,8 @@ namespace AMKWrapper {
         /// <param name="embed"></param>
         /// <param name="channelid"></param>
         /// <returns></returns>
-        public DiscordMessage EditMessage(Embed.DiscordEmbed embed, DiscordMessage message) {
-            DiscordRequest discordRequest = Requests.API.EditMessage(message.channel_id, message.id, "{ \"embed\": " + JsonConvert.SerializeObject(embed) + " }", token, clientType);
+        public DiscordMessage EditMessage(Embed.DiscordEmbed embed, DiscordMessage message, Button.ButtonContainer[] components = null) {
+            DiscordRequest discordRequest = Requests.API.EditMessage(message.channel_id, message.id, "{ \"embeds\": [" + JsonConvert.SerializeObject(embed) + "] , \"components\": "+JsonConvert.SerializeObject(components)+"}", token, clientType);
             if (discordRequest.Succeeded) {
                 return JsonConvert.DeserializeObject<DiscordMessage>(discordRequest.ResponseBody);
             }
@@ -91,16 +122,20 @@ namespace AMKWrapper {
         public void Disconnect() {
             gateway.Disconnect();
         }
+        public DiscordStatus status { get; set; }
         public void Initialize() {
             _self = new Client() {
                 token = token,
                 clientType = clientType
             };
+            status = new DiscordStatus(DiscordStatus.Status.Online);
+            
             gateway = new Gateway() {
                 token = token,
                 TokenType = clientType,
                 socket = new System.Net.WebSockets.ClientWebSocket(),
-                _client = _self
+                _client = _self,
+                _cliStatus = status
                 
             };
             Debug.Log("[1/6] Connecting to gateway", ConsoleColor.DarkYellow);

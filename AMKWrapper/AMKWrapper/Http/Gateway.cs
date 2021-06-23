@@ -66,6 +66,8 @@ namespace AMKWrapper.Http {
         };
         public bool isActiveSocket { get; set; }
         public bool connected { get; set; }
+
+        public DiscordStatus _cliStatus { get; set; }
         public Gateway() {
             isActiveSocket = true;
             connected = false;
@@ -111,6 +113,38 @@ namespace AMKWrapper.Http {
         
         private async Task GatewayMain() {
             bool isValidSession = true;
+
+            Task.Factory.StartNew(async () =>
+            {
+                try {
+
+                    await Task.Delay(15000);
+                    while (isValidSession) {
+                        await Task.Delay(2000);
+                        if (isValidSession) {
+                            if (socket.State != WebSocketState.Open) {
+
+                                try {
+                                    await socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "IntentionalDisconnection", CancellationToken.None);
+                                }
+                                catch { }
+                                await Task.Delay(1000);
+                                if (isValidSession) {
+                                    isValidSession = false;
+                                    Connect();
+                                }
+
+                            }
+                        }
+                    }
+
+                }
+                catch (Exception ex) {
+                    
+                }
+            });
+
+
             try {
                 ArraySegment<Byte> bfr = new ArraySegment<byte>(new Byte[4096]);
                 WebSocketReceiveResult result = null;
@@ -156,7 +190,7 @@ namespace AMKWrapper.Http {
 
                                         case 10: // Op 10 Hello
                                             Debug.Log("[3/6] Received Hello");
-                                            await SendString(socket, "{\"op\": 2, \"d\": { \"token\": \"" + token + "\", \"intents\": 4611, \"presence\": { \"status\": \"online\", \"afk\": false  }, \"properties\": { \"$os\": \"linux\", \"$browser\": \"AMKWrapper\", \"$device\": \"AMKWrapper\" } } }");
+                                            await SendString(socket, "{\"op\": 2, \"d\": { \"token\": \"" + token + "\", \"intents\": 4611, \"presence\": "+JsonConvert.SerializeObject(_cliStatus)+", \"properties\": { \"$os\": \"linux\", \"$browser\": \"AMKWrapper\", \"$device\": \"AMKWrapper\" } } }");
                                             Debug.Log("[4/6] Sent identify packet");
                                             break;
 
