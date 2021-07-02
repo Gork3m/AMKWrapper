@@ -12,7 +12,7 @@ namespace AMKWrapper.EventArgs
         public Interaction interaction { get; set; }
         public Client client { get; set; }
 
-        public bool Ack(Types.SocketTypes.InteractionReplyType ackType, string message = null, Embed.DiscordEmbed embed = null, Button.ButtonContainer[] components = null) {
+        public bool Ack(Types.SocketTypes.InteractionReplyType ackType, string message = null, Embed.DiscordEmbed embed = null, ComponentContainer[] components = null) {
             DiscordRequest discordRequest = Requests.API.AckInteraction(JsonConvert.SerializeObject(new SocketTypes.InteractionReply(ackType,components,message,embed)), interaction.token, interaction.id, client.token, client.clientType);
             if (discordRequest.Succeeded) {
                 return true;
@@ -27,7 +27,7 @@ namespace AMKWrapper.EventArgs
         public DiscordMessage message { get; set; }
         public Client client { get; set; }
 
-        public DiscordMessage Reply(string _message = null, Embed.DiscordEmbed embed = null, Button.ButtonContainer[] components = null) {
+        public DiscordMessage Reply(string _message = null, Embed.DiscordEmbed embed = null, ComponentContainer[] components = null) {
            
             DiscordRequest discordRequest = Requests.API.SendMessage(message.channel_id, JsonConvert.SerializeObject(new SocketTypes.DiscordMessage_Send() {
                 content = _message,

@@ -50,6 +50,14 @@ namespace AMKWrapper.Types
     }
     public class InteractionData {
         public string custom_id { get; set; }
+        public int component_type { get; set; }
+        public string[] values { get; set; }
+
+        
+        public enum ComponentTypes {
+            Button = 2,
+            Dropdown = 3
+        }
     }
     public class DiscordMember {
         public DiscordUser user { get; set; }
@@ -73,22 +81,45 @@ namespace AMKWrapper.Types
         public string[] features { get; set; }
 
     }
-    public partial class Button {
-
-        
-        public partial class ButtonContainer {
-            public ButtonContainer(Button[] buttons) {
-                if (buttons.Length > 5) {
-                    throw new Exception("Too many buttons (5x5 max.)");
-                }
-                components = buttons;
-                type = 1;
+    public partial class ComponentContainer {
+        public ComponentContainer(Component[] _components) {
+            if (_components.Length > 5) {
+                throw new Exception("Too many components");
             }
-            public Button[] components { get; set; }
-            public int type { get; set; }
+            components = _components;
+            type = 1;
         }
-        
-        public Button(string text, ButtonStyle buttonStyle, string data, bool isDisabled = false, DiscordEmoji _emoji = null) {
+        public Component[] components { get; set; }
+        public int type { get; set; }
+    }
+
+    public partial class DropdownOption {
+
+        public DropdownOption(string _label, string _description, string _value, bool _default = false, DiscordEmoji _emoji = null) {
+            label = _label;
+            emoji = _emoji;
+            value = _value;
+            @default = _default;
+            description = _description;
+        }
+        public string label { get; set; }
+        public string description { get; set; }
+        public DiscordEmoji emoji { get; set; }
+        public string value { get; set; }
+        public bool @default { get; set; }
+    }
+
+    public partial class Component {
+
+        /// <summary>
+        /// Button
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="buttonStyle"></param>
+        /// <param name="data"></param>
+        /// <param name="isDisabled"></param>
+        /// <param name="_emoji"></param>
+        public Component(string text, ButtonStyle buttonStyle, string data, bool isDisabled = false, DiscordEmoji _emoji = null) {
             if (buttonStyle == ButtonStyle.Link) {
                 url = data;
             }
@@ -101,6 +132,24 @@ namespace AMKWrapper.Types
             disabled = isDisabled;
             emoji = _emoji;
         }
+        /// <summary>
+        /// Dropdown
+        /// </summary>
+        /// <param name="buttonStyle"></param>
+        /// <param name="data"></param>
+        /// <param name="isDisabled"></param>
+        /// <param name="_emoji"></param>
+        public Component(string _custom_id, string _placeholder, DropdownOption[] _options, int _max_values = 1, int _min_values = 0) {
+
+            min_values = _min_values;
+            max_values = _max_values;
+            placeholder = _placeholder;
+            options = _options;
+            custom_id = _custom_id;
+            type = 3;
+        }
+
+        public DropdownOption[] options { get; set; }
         public DiscordEmoji emoji { get; set; }
         public int type { get; set; }
         public string label { get; set; }
@@ -108,6 +157,10 @@ namespace AMKWrapper.Types
         public bool disabled { get; set; }
         public string custom_id { get; set; }
         public string url { get; set; }
+
+        public string placeholder { get; set; }
+        public int max_values { get; set; }
+        public int min_values { get; set; }
         public enum ButtonStyle {
             Blue = 1,
             Grey = 2,
@@ -138,9 +191,9 @@ namespace AMKWrapper.Types
                 public string content { get; set; }
                 public Embed.DiscordEmbed[] embeds { get; set; }
                 
-                public Button.ButtonContainer[] components { get; set; }
+                public ComponentContainer[] components { get; set; }
             }
-            public InteractionReply(InteractionReplyType replyType, Button.ButtonContainer[] replyComponents = null, string message = null, Embed.DiscordEmbed embed = null) {
+            public InteractionReply(InteractionReplyType replyType, ComponentContainer[] replyComponents = null, string message = null, Embed.DiscordEmbed embed = null) {
                 InteractionData_Send dat = new InteractionData_Send() {
                     content = message,
                     embeds = new Embed.DiscordEmbed[] { embed },
@@ -158,7 +211,7 @@ namespace AMKWrapper.Types
             public string guild_id { get; set; }
             public string content { get; set; }
             public Embed.DiscordEmbed[] embeds { get; set; }
-            public Button.ButtonContainer[] components { get; set; }
+            public ComponentContainer[] components { get; set; }
             public MessageReference message_reference { get; set; }
             public DiscordUser author { get; set; }
             public string id { get; set; }

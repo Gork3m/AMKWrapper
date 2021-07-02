@@ -44,7 +44,7 @@ namespace AMKWrapper {
         /// <param name="message"></param>
         /// <param name="channelid"></param>
         /// <returns></returns>
-        public DiscordMessage SendMessage(string message, string channelid, Button.ButtonContainer[] components = null) {
+        public DiscordMessage SendMessage(string message, string channelid, ComponentContainer[] components = null) {
             DiscordRequest discordRequest = Requests.API.SendMessage(channelid, JsonConvert.SerializeObject(new SocketTypes.DiscordMessage_Send() { content = message, components = components }), token, clientType);
             if (discordRequest.Succeeded) {
                 return JsonConvert.DeserializeObject<DiscordMessage>(discordRequest.ResponseBody);
@@ -59,7 +59,7 @@ namespace AMKWrapper {
         /// <param name="embed"></param>
         /// <param name="channelid"></param>
         /// <returns></returns>
-        public DiscordMessage SendMessage(Embed.DiscordEmbed embed, string channelid, Button.ButtonContainer[] components = null) {
+        public DiscordMessage SendMessage(Embed.DiscordEmbed embed, string channelid, ComponentContainer[] components = null) {
             DiscordRequest discordRequest = Requests.API.SendMessage(channelid, JsonConvert.SerializeObject(new SocketTypes.DiscordMessage_Send() { embeds = new Embed.DiscordEmbed[] { embed }, components = components }), token, clientType);
             if (discordRequest.Succeeded) {
                 return JsonConvert.DeserializeObject<DiscordMessage>(discordRequest.ResponseBody);
@@ -103,7 +103,7 @@ namespace AMKWrapper {
         /// <param name="embed"></param>
         /// <param name="channelid"></param>
         /// <returns></returns>
-        public DiscordMessage EditMessage(Embed.DiscordEmbed embed, DiscordMessage message, Button.ButtonContainer[] components = null) {
+        public DiscordMessage EditMessage(Embed.DiscordEmbed embed, DiscordMessage message, ComponentContainer[] components = null) {
             DiscordRequest discordRequest = Requests.API.EditMessage(message.channel_id, message.id, "{ \"embeds\": [" + JsonConvert.SerializeObject(embed) + "] , \"components\": "+JsonConvert.SerializeObject(components)+"}", token, clientType);
             if (discordRequest.Succeeded) {
                 return JsonConvert.DeserializeObject<DiscordMessage>(discordRequest.ResponseBody);

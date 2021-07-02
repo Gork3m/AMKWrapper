@@ -79,14 +79,21 @@ namespace TestApp
                     string maxsecurityDesc = "\n🔒 **`Max Security`** : Enables code optimization, uses more secure structures and increases security. Best when used with anti tamper. Not recommended on big scripts.";
                     string antitamperDesc = "\n🔒 **`Anti Tamper`** : This uses loadstring or load, so your platform must support one of them. Uses a cool loader-like protection to ensure the safety of the VM as well as your code. File size might be 80kb more than usual.";
                     int platform = 0;
-                    Button antiTamperBtn = new Button("🔓 Anti Tamper", Button.ButtonStyle.Red, "at", false);
-                    Button platformBtn = new Button("Other platforms", Button.ButtonStyle.Blue, "pl", false, new DiscordEmoji() { name = "Other", id = "839430519506862080", animated = false });
-                    Button maxSecurityBtn = new Button("🔓 Max Security", Button.ButtonStyle.Red, "ms", false);
-                    Button obfuscateBtn = new Button("Obfuscate", Button.ButtonStyle.Blue, "obf", false);
+                    Component antiTamperBtn = new Component("🔓 Anti Tamper", Component.ButtonStyle.Red, "at", false);
+                    Component platformBtn = new Component("Other platforms", Component.ButtonStyle.Blue, "pl", false, new DiscordEmoji() { name = "Other", id = "839430519506862080", animated = false });
+                    Component maxSecurityBtn = new Component("🔓 Max Security", Component.ButtonStyle.Red, "ms", false);
+                    Component obfuscateBtn = new Component("Obfuscate", Component.ButtonStyle.Blue, "obf", false);
 
-                    Button.ButtonContainer line1 = new Button.ButtonContainer(new Button[] { platformBtn, antiTamperBtn, maxSecurityBtn, obfuscateBtn });
-                    
-                    var msg = args.Reply(null, embed, new Button.ButtonContainer[] { line1 });
+                    ComponentContainer line1 = new ComponentContainer(new Component[] { antiTamperBtn, maxSecurityBtn, obfuscateBtn });
+
+                    DropdownOption _luaOpt = new DropdownOption("Other", "Runs on sandboxes, repl etc", "otheropt", true, new DiscordEmoji() { id = "839430519506862080", name = "Other" });
+                    DropdownOption _robloxOpt = new DropdownOption("Roblox", "Runs on executors", "robloxopt", false, new DiscordEmoji() { id = "839430176714129408", name = "Roblox" });
+                    DropdownOption _csgoOpt = new DropdownOption("CS:GO", "Runs on gamesense", "csgoopt", false, new DiscordEmoji() { id = "839430421183463454", name = "CSGO" });
+                    DropdownOption _fivemOpt = new DropdownOption("FiveM", "Runs on FiveM", "fivemopt", false, new DiscordEmoji() { id = "839430304019775488", name = "FiveM" });
+
+                    Component dropdown = new Component("dropdownaction", "Select options", new DropdownOption[] { _luaOpt, _robloxOpt, _csgoOpt, _fivemOpt }, 1, 1);
+
+                    var msg = args.Reply(null, embed, new ComponentContainer[] { new ComponentContainer(new Component[] {dropdown}), line1 });
                     
                     DiscordEvents.EventHook act = new DiscordEvents.EventHook();
                     act = DiscordEvents.OnInteraction(delegate (InteractionCreateEventArgs args2) {
@@ -96,39 +103,45 @@ namespace TestApp
                         }
 
                         if (args2.interaction.user.id == args.message.author.id) {
-                            if (args2.interaction.data.custom_id == "pl") {
+                            if (args2.interaction.data.custom_id == "dropdownaction") {
                                 int oldpf = platform;
-                                platform = (platform + 1) % 4;
+                                string[] opts2 = new string[] { "otheropt", "robloxopt", "csgoopt", "fivemopt" };
+                                platform = Array.IndexOf(opts2, args2.interaction.data.values[0]);
+
                                 
                                 embed.fields[0].value = embed.fields[0].value.Replace(platforms[oldpf], platforms[platform]);
                                 
 
                                 if (platform == 0) {
-                                    platformBtn.style = (int)Button.ButtonStyle.Blue;
-                                    platformBtn.label = "Other platforms";
-                                    platformBtn.emoji.id = "839430519506862080";
-                                    platformBtn.emoji.name = "Other";
+
+                                    dropdown.options[0].@default = true;
+                                    dropdown.options[1].@default = false;
+                                    dropdown.options[2].@default = false;
+                                    dropdown.options[3].@default = false;
 
                                 }
                                 if (platform == 1) {
-                                    platformBtn.style = (int)Button.ButtonStyle.Red;
-                                    platformBtn.label = "Roblox";
-                                    platformBtn.emoji.id = "839430176714129408";
-                                    platformBtn.emoji.name = "Roblox";
+
+                                    dropdown.options[0].@default = false;
+                                    dropdown.options[1].@default = true;
+                                    dropdown.options[2].@default = false;
+                                    dropdown.options[3].@default = false;
 
                                 }
                                 if (platform == 2) {
-                                    platformBtn.style = (int)Button.ButtonStyle.Grey;
-                                    platformBtn.label = "CS:GO / Gamesense";
-                                    platformBtn.emoji.id = "839430421183463454";
-                                    platformBtn.emoji.name = "CSGO";
+
+                                    dropdown.options[0].@default = false;
+                                    dropdown.options[1].@default = false;
+                                    dropdown.options[2].@default = true;
+                                    dropdown.options[3].@default = false;
 
                                 }
                                 if (platform == 3) {
-                                    platformBtn.style = (int)Button.ButtonStyle.Grey;
-                                    platformBtn.label = "FiveM";
-                                    platformBtn.emoji.id = "839430304019775488";
-                                    platformBtn.emoji.name = "FiveM";
+
+                                    dropdown.options[0].@default = false;
+                                    dropdown.options[1].@default = false;
+                                    dropdown.options[2].@default = false;
+                                    dropdown.options[3].@default = true;
 
                                 }
                             }
@@ -138,13 +151,13 @@ namespace TestApp
                                 if (antiTamperEnabled) {
                                     embed.fields[0].value += antitamperDesc;
                                 }
-                                antiTamperBtn.style = (int)(antiTamperEnabled ? Button.ButtonStyle.Green : Button.ButtonStyle.Red);
+                                antiTamperBtn.style = (int)(antiTamperEnabled ? Component.ButtonStyle.Green : Component.ButtonStyle.Red);
                                 antiTamperBtn.label = antiTamperEnabled ? antiTamperBtn.label.Replace("Disabled", "Enabled").Replace("🔓","🔒") : antiTamperBtn.label.Replace("Enabled", "Disabled").Replace("🔒", "🔓");
 
                             }
                             if (args2.interaction.data.custom_id == "ms") {
                                 maxSecurityEnabled = !maxSecurityEnabled;
-                                maxSecurityBtn.style = (int)(maxSecurityEnabled ? Button.ButtonStyle.Green : Button.ButtonStyle.Red);
+                                maxSecurityBtn.style = (int)(maxSecurityEnabled ? Component.ButtonStyle.Green : Component.ButtonStyle.Red);
                                 embed.fields[0].value = embed.fields[0].value.Replace(maxsecurityDesc, "");
                                 if (maxSecurityEnabled) {
                                     embed.fields[0].value += maxsecurityDesc;
@@ -175,12 +188,12 @@ namespace TestApp
 
 
                             }
-                            line1 = new Button.ButtonContainer(new Button[] { platformBtn, antiTamperBtn, maxSecurityBtn, obfuscateBtn });
+                            line1 = new ComponentContainer(new Component[] { antiTamperBtn, maxSecurityBtn, obfuscateBtn });
 
 
 
                             try {
-                                args2.Ack(SocketTypes.InteractionReplyType.Edit, null, embed, new Button.ButtonContainer[] { line1 });
+                                args2.Ack(SocketTypes.InteractionReplyType.Edit, null, embed, new ComponentContainer[] { new ComponentContainer(new Component[] { dropdown }), line1 });
                             }
                             catch {
                                 // 401
@@ -193,17 +206,17 @@ namespace TestApp
                                 string data = wc.DownloadString(args.message.attachments[0].url);
                                 Thread.Sleep(1000);
                                 embed.fields[1].value = "**Received file :white_check_mark:**\nObfuscating.. " + loading;
-                                client.EditMessage(embed, msg, new Button.ButtonContainer[] { line1 });
+                                client.EditMessage(embed, msg, new ComponentContainer[] { new ComponentContainer(new Component[] { dropdown }), line1 });
                                 Thread.Sleep(1000);
                                 embed.fields[1].value = "**Received file :white_check_mark:**\n**Obfuscated** :white_check_mark:\nUploading.. " + loading;
-                                client.EditMessage(embed, msg, new Button.ButtonContainer[] { line1 });
+                                client.EditMessage(embed, msg, new ComponentContainer[] { new ComponentContainer(new Component[] { dropdown }), line1 });
                                 Thread.Sleep(1000);
                                 embed.fields[1].value = "**Received file :white_check_mark:**\n**Obfuscated** :white_check_mark:\n**Done!** :white_check_mark:";
                                 embed.color = Embed.EmbedColor.CuteGreen;
                                 embed.description = "**Enabled features:**\n<:" + platformBtn.emoji.name + ":" + platformBtn.emoji.id + "> `" + platformBtn.label + "` " + (antiTamperEnabled ? "\n`🔒 Anti Tamper` " : "") + (maxSecurityEnabled ? "\n`🔒 Max Security` " : "") + "\nGenerated **`nothing`**\nRandomized **`nothing`**";
                                 
-                                line1.components[3].label = "✅ Obfuscated";
-                                line1.components[3].emoji = null;
+                                line1.components[2].label = "✅ Obfuscated";
+                                line1.components[2].emoji = null;
                                 var uploaded = client.UploadFiles(new string[] { "./usercache/foreskin.txt" }, "854386842391806012", "Protected.lua");
                                 embed.fields = new Embed.EmbedField[] {
 
@@ -212,8 +225,9 @@ namespace TestApp
                                         value = "**"+uploaded.attachments[0].url+"**"
                                     }
                                 };
-                                client.EditMessage(embed, msg, new Button.ButtonContainer[] {  });
-
+                                Debug.Log("Before");
+                                client.EditMessage(embed, msg, new ComponentContainer[] {  });
+                                Debug.Log("After");
                                 
 
 
