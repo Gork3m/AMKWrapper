@@ -21,11 +21,14 @@ namespace AMKWrapper.Http {
     public partial class Gateway {
         public static Dictionary<string, Action<MessageCreateEventArgs>> messageCreatedCallbacks = new Dictionary<string, Action<MessageCreateEventArgs>>();
         public static Dictionary<string, Action<InteractionCreateEventArgs>> interactionCreatedCallbacks = new Dictionary<string, Action<InteractionCreateEventArgs>>();
+        public static Dictionary<string, Action<MemberJoinEventArgs>> memberJoinCallbacks = new Dictionary<string, Action<MemberJoinEventArgs>>();
+
+
         public Client _client { get; set; }
         public Dictionary<string, Action<string, Client>> eventPool = new Dictionary<string, Action<string, Client>>() {
-            ["MESSAGE_CREATE"] = delegate(string raw, Client client) {
+            ["MESSAGE_CREATE"] = delegate (string raw, Client client) {
                 JObject data = JObject.Parse(raw);
-                
+
                 MessageCreateEventArgs args = new MessageCreateEventArgs() {
                     message = JsonConvert.DeserializeObject<DiscordMessage>(data["d"].ToString()),
                     client = client
@@ -36,10 +39,30 @@ namespace AMKWrapper.Http {
                     Task.Run(() => {
                         try {
                             messageCreatedCallbacks.ElementAt(index).Value(args);
-                            }
-                        catch(Exception ex) { Debug.Log("Error occured while running MESSAGE_CREATE hook @ ["+ messageCreatedCallbacks.ElementAt(index).Key +"] " + ex.Message, ConsoleColor.DarkRed); }
-                        });
-                    
+                        }
+                        catch (Exception ex) { Debug.Log("Error occured while running MESSAGE_CREATE hook @ [" + messageCreatedCallbacks.ElementAt(index).Key + "] " + ex.Message, ConsoleColor.DarkRed); }
+                    });
+
+                }
+            },
+
+            ["GUILD_MEMBER_ADD"] = delegate (string raw, Client client) {
+                JObject data = JObject.Parse(raw);
+
+                MemberJoinEventArgs args = new MemberJoinEventArgs() {
+                    member = JsonConvert.DeserializeObject<DiscordMember>(data["d"].ToString()),
+                    client = client
+                };
+                for (int i = 0; i < memberJoinCallbacks.Count; i++) {
+
+                    int index = i;
+                    Task.Run(() => {
+                        try {
+                            memberJoinCallbacks.ElementAt(index).Value(args);
+                        }
+                        catch (Exception ex) { Debug.Log("Error occured while running GUILD_MEMBER_ADD hook @ [" + memberJoinCallbacks.ElementAt(index).Key + "] " + ex.Message, ConsoleColor.DarkRed); }
+                    });
+
                 }
             },
 

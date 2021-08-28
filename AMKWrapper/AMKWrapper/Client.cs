@@ -17,7 +17,62 @@ namespace AMKWrapper {
     /// </summary>
     public partial class Client {
 
-
+        /// <summary>
+        /// Bans a user from a guild
+        /// </summary>
+        /// <param name="guild_id"></param>
+        /// <param name="user_id"></param>
+        /// <param name="reason"></param>
+        /// <param name="deletedays"></param>
+        /// <returns></returns>
+        public DiscordMember BanMember(string guild_id, string user_id, string reason = "", int deletedays = 0) {
+            DiscordRequest discordRequest = Requests.API.BanMember(guild_id, user_id, token, reason, deletedays, clientType);
+            if (discordRequest.Succeeded) {
+                return JsonConvert.DeserializeObject<DiscordMember>(discordRequest.ResponseBody);
+            }
+            else {
+                throw new Exception(discordRequest.ResponseBody);
+            }
+        }
+        /// <summary>
+        /// Kicks a user from a guild
+        /// </summary>
+        /// <param name="guild_id"></param>
+        /// <param name="user_id"></param>
+        /// <param name="reason"></param>
+        /// <param name="deletedays"></param>
+        /// <returns></returns>
+        public DiscordMember KickMember(string guild_id, string user_id, string reason = "") {
+            DiscordRequest discordRequest = Requests.API.KickMember(guild_id, user_id, token, reason, clientType);
+            if (discordRequest.Succeeded) {
+                return JsonConvert.DeserializeObject<DiscordMember>(discordRequest.ResponseBody);
+            }
+            else {
+                throw new Exception(discordRequest.ResponseBody);
+            }
+        }
+        /// <summary>
+        /// Unbans a discord user from a guild
+        /// </summary>
+        /// <param name="guild_id"></param>
+        /// <param name="user_id"></param>
+        /// <param name="reason"></param>
+        /// <returns></returns>
+        public DiscordMember UnbanMember(string guild_id, string user_id) {
+            DiscordRequest discordRequest = Requests.API.UnbanMember(guild_id, user_id, token, clientType);
+            if (discordRequest.Succeeded) {
+                return JsonConvert.DeserializeObject<DiscordMember>(discordRequest.ResponseBody);
+            }
+            else {
+                throw new Exception(discordRequest.ResponseBody);
+            }
+        }
+        /// <summary>
+        /// Gets DiscordMember from a guild
+        /// </summary>
+        /// <param name="guild_id"></param>
+        /// <param name="user_id"></param>
+        /// <returns></returns>
         public DiscordMember GetMemberFromGuild(string guild_id, string user_id) {
             DiscordRequest discordRequest = Requests.API.GetMember(guild_id, user_id, token, clientType);
             if (discordRequest.Succeeded) {

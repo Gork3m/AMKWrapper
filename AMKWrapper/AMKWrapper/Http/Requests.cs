@@ -18,6 +18,16 @@ namespace AMKWrapper.Http
         /// </summary>
         public static class API {
 
+            public static DiscordRequest UnbanMember(string guild_id, string user_id, string token, TokenType tokenType) {
+                return RawRequest(DiscordEndpoints.GuildBan(guild_id, user_id), token, "DELETE", "text/html charset=utf-8;", "", tokenType);
+            }
+            public static DiscordRequest BanMember(string guild_id, string user_id, string token, string banreason, int deletedays, TokenType tokenType) {
+                return RawRequest(DiscordEndpoints.GuildBan(guild_id, user_id), token, "PUT", "application/json", "{\"delete_message_days\":\"" + deletedays + "\", \"reason:\":\"" + banreason + "\"}", tokenType);
+            }
+            public static DiscordRequest KickMember(string guild_id, string user_id, string token, string kickreason, TokenType tokenType) {
+                return RawRequest(DiscordEndpoints.GuildKick(guild_id, user_id, kickreason), token, "DELETE", "text/html charset=utf-8;", "", tokenType);
+            }
+            
             public static DiscordRequest GetMember(string guild_id, string user_id, string token, TokenType tokenType) {
                 return RawRequest(DiscordEndpoints.DiscordMember(guild_id, user_id), token, "GET", "text/html charset=utf-8;", "", tokenType);
             }

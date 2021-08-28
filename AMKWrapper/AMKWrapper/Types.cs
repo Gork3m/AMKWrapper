@@ -62,6 +62,8 @@ namespace AMKWrapper.Types
     public class DiscordMember {
         public DiscordUser user { get; set; }
         public string[] roles { get; set; }
+
+        public string guild_id { get; set; }
     }
     public class Interaction {
 
