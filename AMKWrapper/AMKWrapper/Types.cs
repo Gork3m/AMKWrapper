@@ -198,7 +198,7 @@ namespace AMKWrapper.Types
             public InteractionReply(InteractionReplyType replyType, ComponentContainer[] replyComponents = null, string message = null, Embed.DiscordEmbed embed = null) {
                 InteractionData_Send dat = new InteractionData_Send() {
                     content = message,
-                    embeds = new Embed.DiscordEmbed[] { embed },
+                    embeds = embed == null ? null : new Embed.DiscordEmbed[] { embed },
                     components = replyComponents
                 };
                 type = (int)replyType;
